@@ -1,4 +1,4 @@
-name: REZX_V17_FINAL_SUCCESS
+name: INFINITY_V16_OMNIPOTENT_FINAL
 on: [push]
 
 jobs:
@@ -14,43 +14,52 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 🏗️ Reconstruction & Rezx Injection
+      - name: ⚙️ Setup Gradle Engine
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: 🏗️ Reconstruction & Auto-Repair (BOSS MODE)
         run: |
+          # RESET TOTAL
           rm -rf app build.gradle settings.gradle gradlew output_apk
           mkdir -p app/src/main/java/com/infinity/app
           mkdir -p app/src/main/res/layout app/src/main/res/values
 
-          # INJECT JANTUNG REZX V1 (AUTO-FIX)
-          printf "package com.infinity.app;\nimport android.app.Activity;\nimport android.os.Bundle;\nimport android.widget.TextView;\nimport android.graphics.Color;\nimport android.widget.ScrollView;\npublic class MainActivity extends Activity {\n@Override\nprotected void onCreate(Bundle s){\nsuper.onCreate(s);\nScrollView sv = new ScrollView(this);\nTextView tv = new TextView(this);\ntv.setBackgroundColor(Color.BLACK);\ntv.setTextColor(Color.GREEN);\ntv.setPadding(40,40,40,40);\ntv.setText(\"𓁹____𓁹\\\\nselamat datang di REZX\\\\nV1\\\\n𓁹____𓁹\\\\n\\\\n.INFO (Rezx AI)\\\\n.OWNER (Rezi)\\\\n.SOSMED (rzzz_555)\\\\n\\\\nSTATUS: BERHASIL DICETAK!\\\\nCOBA CEK TAB ARTIFACTS!\");\nsv.addView(tv);\nsetContentView(sv);\n}\n}" > app/src/main/java/com/infinity/app/MainActivity.java
-
-          # REPARASI FILE ACAK (Kalo lu naruh file lain)
+          # PINDAHIN FILE ACAK LU
           find . -name "*.java" -not -path "./app/*" -exec cp {} app/src/main/java/com/infinity/app/ \;
+          find . -name "*.xml" -not -path "./app/*" -exec cp {} app/src/main/res/layout/ \;
+
+          # GENERATOR JANTUNG OTOMATIS
+          printf "package com.infinity.app;\nimport android.app.Activity;\nimport android.os.Bundle;\npublic class MainActivity extends Activity {\nprotected void onCreate(Bundle s){super.onCreate(s);}\n}" > app/src/main/java/com/infinity/app/MainActivity.java
+
+          # REPARASI KODE SALAH
           for file in app/src/main/java/com/infinity/app/*.java; do
             sed -i '/package /d' "$file"
             sed -i '1i package com.infinity.app;' "$file"
           done
 
-          # GRADLE SYSTEM (KEBAL ERROR)
+          # SISTEM GRADLE ANTI-TRANSLATE
           echo "include ':app'" > settings.gradle
           printf "buildscript {\n  repositories { google(); mavenCentral() }\n  dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }\n}\nallprojects { repositories { google(); mavenCentral() } }\n" > build.gradle
           printf "apply plugin: 'com.android.application'\nandroid {\n  namespace 'com.infinity.app'\n  compileSdk 34\n  defaultConfig {\n    applicationId 'com.infinity.app'\n    minSdk 21\n    targetSdk 34\n  }\n}\n" > app/build.gradle
-          printf "<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.infinity.app'>\n<application android:label='RezxV17'>\n<activity android:name='.MainActivity' android:exported='true'>\n<intent-filter>\n<action android:name='android.intent.action.MAIN' />\n<category android:name='android.intent.category.LAUNCHER' />\n</intent-filter>\n</activity>\n</application>\n</manifest>" > app/src/main/AndroidManifest.xml
+          printf "<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.infinity.app'>\n<application android:label='InfinityV16'>\n<activity android:name='.MainActivity' android:exported='true'>\n<intent-filter>\n<action android:name='android.intent.action.MAIN' />\n<category android:name='android.intent.category.LAUNCHER' />\n</intent-filter>\n</activity>\n</application>\n</manifest>" > app/src/main/AndroidManifest.xml
 
       - name: 🚀 Build APK Paksa
         run: |
-          sudo apt-get update && sudo apt-get install gradle -y
-          gradle assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon --continue
 
-      - name: 🚚 Pindahin APK (JALUR KHUSUS)
+      - name: 🚚 Pindahin APK ke Folder Aman (ANTI-ZONK)
         run: |
-          mkdir -p final_output
-          # Paksa cari di folder build dan pindahin ke folder final_output
-          find app/build/outputs/apk/debug/ -name "*.apk" -exec cp {} ./final_output/app-debug.apk \;
-          ls -l ./final_output/
+          # Kita buat folder 'kirim' yang gak bakal bisa dicuekin robot pengirim
+          mkdir -p kirim_sini
+          find . -name "*.apk" -exec cp {} ./kirim_sini/ \;
+          # Liat isi foldernya di log biar kita tau filenya ada
+          ls -R ./kirim_sini/
 
-      - name: 📦 Kirim APK Rezx (FIXED PATH)
+      - name: 📦 Kirim APK Hasil Final (FORCE SEND)
         uses: actions/upload-artifact@v4
         with:
-          name: HASIL_REZX_V17
-          path: final_output/app-debug.apk
+          name: APK_SIAP_DOWNLOAD_V16
+          # Kita suruh robotnya ambil APAPUN yang ada di folder 'kirim_sini'
+          path: ./kirim_sini/
           if-no-files-found: error
+          retention-days: 1
