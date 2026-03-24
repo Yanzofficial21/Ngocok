@@ -71,32 +71,31 @@ jobs:
           echo "include ':app'" > settings.gradle
           echo '<resources><string name="app_name">InfinityV8</string></resources>' > app/src/main/res/values/strings.xml
 
-          kucing <<EOF > app/build.gradle
-          plugin { id 'com.android.application' }
+          cat <<EOF > app/build.gradle
+          plugins { id 'com.android.application' }
           android {
               namespace 'com.infinity.app'
               compileSdk 34
-              defaultConfig {
-                  ID aplikasi "com.infinity.app"
-                  minSdk 21
-                  targetSdk 34
-                  Kode versi 1
-                  nama versi "1.0"
+              defaultConfig { 
+                  applicationId "com.infinity.app"
+                  minSdk 21 
+                  targetSdk 34 
+                  versionCode 1
+                  versionName "1.0"
               }
           }
-          Akhir dari
+          EOF
 
-      - name : 🚀 Eksekusi Build APK Paksa (DEBUG MODE)
-        jalankan : |
+      - name: 🚀 Eksekusi Build APK Paksa (DEBUG MODE)
+        run: |
           sudo apt-get update && sudo apt-get install gradle -y
           # Pake assembleDebug biar gak ribet urusan Keystore/Sign!
-          gradle assembleDebug --no-daemon --lanjutkan || gema "PAKSA CARI HASIL!"
+          gradle assembleDebug --no-daemon --continue || echo "PAKSA CARI HASIL!"
 
-      - nama : 📦 Kirim Hasil Akhir (SEARCH & RESCUE)
-        penggunaan : actions/upload-artifact@v4
-        dengan :
-          nama : APK_SIAP_INSTAL_V8_FIX
-          #Jalur sakti: Nyari di semua folder sampe ketemu APK
-          jalur : "**/*.apk"
-          jika tidak ada file yang ditemukan : kesalahan
-
+      - name: 📦 Kirim Hasil Akhir (SEARCH & RESCUE)
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK_SIAP_INSTAL_V8_FIX
+          # Jalur sakti: Nyari di semua folder sampe ketemu APK
+          path: "**/*.apk"
+          if-no-files-found: error
