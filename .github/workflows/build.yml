@@ -1,4 +1,4 @@
-name: INFINITY_V15_OMNIPOTENT_SUPREME
+name: INFINITY_V16_OMNIPOTENT_FINAL
 on: [push]
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       - name: 🏗️ Reconstruction & Auto-Repair (BOSS MODE)
         run: |
           # 1. RESET TOTAL & BERSIHIN SAMPAH
-          rm -rf app build.gradle settings.gradle gradlew
+          rm -rf app build.gradle settings.gradle gradlew output_apk
           mkdir -p app/src/main/java/com/infinity/app
           mkdir -p app/src/main/res/layout app/src/main/res/values
 
@@ -26,9 +26,8 @@ jobs:
           find . -name "*.xml" -not -path "./app/*" -exec cp {} app/src/main/res/layout/ \;
 
           # 3. 🔥 AUTO-GENERATOR (Kalo Kode Lu Kosong/Rusak) 🔥
-          # Kita pake printf biar karakternya murni 100% tanpa campur tangan browser
           if [ ! -f "app/src/main/java/com/infinity/app/MainActivity.java" ] || [ ! -s "app/src/main/java/com/infinity/app/MainActivity.java" ]; then
-            printf "package com.infinity.app;\nimport android.app.Activity;\nimport android.os.Bundle;\nimport android.widget.TextView;\nimport android.view.Gravity;\npublic class MainActivity extends Activity {\n@Override\nprotected void onCreate(Bundle s){super.onCreate(s);TextView tv=new TextView(this);tv.setText(\"INFINITY V15 GACOR\");tv.setGravity(Gravity.CENTER);setContentView(tv);}\n}" > app/src/main/java/com/infinity/app/MainActivity.java
+            printf "package com.infinity.app;\nimport android.app.Activity;\nimport android.os.Bundle;\nimport android.widget.TextView;\nimport android.view.Gravity;\npublic class MainActivity extends Activity {\n@Override\nprotected void onCreate(Bundle s){super.onCreate(s);TextView tv=new TextView(this);tv.setText(\"INFINITY V16 GACOR\");tv.setGravity(Gravity.CENTER);setContentView(tv);}\n}" > app/src/main/java/com/infinity/app/MainActivity.java
           fi
 
           # 4. 🔥 REPARASI SYNTAX BRUTAL 🔥
@@ -39,26 +38,32 @@ jobs:
             sed -i '2i import com.infinity.app.R;' "$file"
           done
 
-          # 5. NYIPTAIN SISTEM GRADLE ANTI-QUOTE-ERROR
+          # 5. NYIPTAIN SISTEM GRADLE (ANTI-TRANSLATE)
           echo "include ':app'" > settings.gradle
-          
           printf "buildscript {\n  repositories { google(); mavenCentral() }\n  dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }\n}\nallprojects { repositories { google(); mavenCentral() } }\n" > build.gradle
-
           printf "apply plugin: 'com.android.application'\nandroid {\n  namespace 'com.infinity.app'\n  compileSdk 34\n  defaultConfig {\n    applicationId 'com.infinity.app'\n    minSdk 21\n    targetSdk 34\n  }\n}\n" > app/build.gradle
 
           # 6. MANIFEST & STRINGS
-          printf "<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.infinity.app'>\n<application android:label='InfinityV15'>\n<activity android:name='.MainActivity' android:exported='true'>\n<intent-filter>\n<action android:name='android.intent.action.MAIN' />\n<category android:name='android.intent.category.LAUNCHER' />\n</intent-filter>\n</activity>\n</application>\n</manifest>" > app/src/main/AndroidManifest.xml
-          printf "<resources><string name='app_name'>InfinityV15</string></resources>" > app/src/main/res/values/strings.xml
+          printf "<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.infinity.app'>\n<application android:label='InfinityV16'>\n<activity android:name='.MainActivity' android:exported='true'>\n<intent-filter>\n<action android:name='android.intent.action.MAIN' />\n<category android:name='android.intent.category.LAUNCHER' />\n</intent-filter>\n</activity>\n</application>\n</manifest>" > app/src/main/AndroidManifest.xml
+          printf "<resources><string name='app_name'>InfinityV16</string></resources>" > app/src/main/res/values/strings.xml
 
-      - name: 🚀 Build APK Paksa (Direct Force)
+      - name: 🚀 Build APK Paksa
         run: |
           sudo apt-get update && sudo apt-get install gradle -y
-          # Pake assembleDebug biar gak butuh kunci/sign
-          gradle assembleDebug --no-daemon --continue || echo "PAKSA CARI HASIL!"
+          gradle assembleDebug --no-daemon --continue || echo "MENCETAK HASIL SISA..."
 
-      - name: 📦 Send Result (Search & Rescue) 📦⚡
+      - name: 🚚 Pindahin APK ke Depan (ANTI-ZONK)
+        run: |
+          # Buat folder khusus di depan mata robot pengirim
+          mkdir -p output_apk
+          # Cari APK dan pindahin paksa ke folder depan
+          find . -name "*.apk" -exec cp {} ./output_apk/ \;
+          # List file biar kita liat di log kalo filenya emang ada
+          ls -R ./output_apk/
+
+      - name: 📦 Kirim APK Hasil Final
         uses: actions/upload-artifact@v4
         with:
-          name: APK_SIAP_INSTAL_V15_FINAL
-          path: "**/*.apk"
+          name: APK_SIAP_DOWNLOAD_V16
+          path: output_apk/*.apk
           if-no-files-found: error
