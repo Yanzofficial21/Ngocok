@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">System Update</string>
+    <string name="lock_service_channel">Lock Service</string>
+    <string name="lock_service_description">System security service</string>
+</resources>

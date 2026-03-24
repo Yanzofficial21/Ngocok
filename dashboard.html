@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controller Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>📱 Device Controller</h1>
+    <div id="devices"></div>
+    
+    <script>
+        function loadDevices() {
+            $.get('/api/devices', function(data) {
+                let html = '';
+                data.forEach(device => {
+                    html += `
+                        <div>
+                            <b>${device.device_name}</b> (${device.device_id})
+                            <button onclick="lockDevice('${device.device_id}')">Lock</button>
+                            <button onclick="unlockDevice('${device.device_id}')">Unlock</button>
+                        </div>
+                    `;
+                });
+                $('#devices').html(html);
+            });
+        }
+        
+        function lockDevice(id) {
+            $.post('/api/lock', {device_id: id});
+        }
+        
+        setInterval(loadDevices, 3000);
+        loadDevices();
+    </script>
+</body>
+</html>
