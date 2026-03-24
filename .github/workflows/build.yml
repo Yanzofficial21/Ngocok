@@ -1,11 +1,11 @@
-name: INFINITY_V11_OMNIPOTENT_SUPREME
+name: INFINITY_V13_OMEGA_FORCE
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 🥷 Checkout Code
+      - name: 🥷 Ambil Kode (Checkout)
         uses: actions/checkout@v4
 
       - name: ☕ Setup Java 17
@@ -14,22 +14,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 🏗️ Forced Reconstruction & Wrapper Injection
+      - name: 🏗️ Operasi Plastik & Auto-Repair (DEWA MODE)
         run: |
-          # 1. RESET TOTAL & STRUKTUR ULANG
-          rm -rf app build.gradle settings.gradle gradlew gradlew.bat gradle
+          # 1. BERSIHIN TOTAL (ANTI-GHOST FOLDER)
+          rm -rf app build.gradle settings.gradle gradlew
           mkdir -p app/src/main/java/com/infinity/app
-          mkdir -p app/src/main/res/layout
-          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/layout app/src/main/res/values
 
-          # 2. INJECT WRAPPER (Bikin Mesin Sendiri biar gak lawak)
-          gradle wrapper --gradle-version 8.2
-
-          # 3. KUMPULIN SEMUA FILE (ACAK PUN DISIKAT)
+          # 2. PINDAHIN FILE LU (SCAN SEMUA SUDUT)
           find . -name "*.java" -not -path "./app/*" -exec cp {} app/src/main/java/com/infinity/app/ \;
           find . -name "*.xml" -not -path "./app/*" -exec cp {} app/src/main/res/layout/ \;
 
-          # 4. 🔥 FITUR DEWA: AUTO-GENERATOR (Kalo Java Kosong/Rusak) 🔥
+          # 3. 🔥 AUTO-GENERATOR (Kalo Kode Lu Kosong/Rusak) 🔥
           if [ ! -f "app/src/main/java/com/infinity/app/MainActivity.java" ] || [ ! -s "app/src/main/java/com/infinity/app/MainActivity.java" ]; then
             echo "KODE KOSONG! NYIPTAIN JANTUNG BARU..."
             cat <<EOF > app/src/main/java/com/infinity/app/MainActivity.java
@@ -38,13 +34,12 @@ jobs:
             import android.os.Bundle;
             import android.widget.TextView;
             import android.view.Gravity;
-
             public class MainActivity extends Activity {
                 @Override
                 protected void onCreate(Bundle savedInstanceState) {
                     super.onCreate(savedInstanceState);
                     TextView tv = new TextView(this);
-                    tv.setText("INFINITY V11\nSTATUS: GACOR TOTAL!");
+                    tv.setText("INFINITY V13\nSTATUS: GACOR PARAH!");
                     tv.setGravity(Gravity.CENTER);
                     setContentView(tv);
                 }
@@ -52,7 +47,7 @@ jobs:
           EOF
           fi
 
-          # 5. 🔥 REPARASI SYNTAX BRUTAL 🔥
+          # 4. 🔥 REPARASI SYNTAX BRUTAL 🔥
           for file in app/src/main/java/com/infinity/app/*.java; do
             sed -i '/package /d' "$file"
             sed -i '1i package com.infinity.app;' "$file"
@@ -60,7 +55,7 @@ jobs:
             sed -i '2i import com.infinity.app.R;' "$file"
           done
 
-          # 6. NYIPTAIN SISTEM GRADLE KEBAL EROR
+          # 5. NYIPTAIN SISTEM GRADLE KEBAL PELURU
           echo "include ':app'" > settings.gradle
           cat <<EOF > build.gradle
           buildscript {
@@ -75,17 +70,13 @@ jobs:
           android {
               namespace 'com.infinity.app'
               compileSdk 34
-              defaultConfig { 
-                  applicationId "com.infinity.app"
-                  minSdk 21 
-                  targetSdk 34 
-              }
+              defaultConfig { applicationId "com.infinity.app"; minSdk 21; targetSdk 34 }
           }
           EOF
 
           cat <<EOF > app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.infinity.app">
-              <application android:label="InfinityV11" android:theme="@android:style/Theme.DeviceDefault">
+              <application android:label="InfinityV13">
                   <activity android:name=".MainActivity" android:exported="true">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
@@ -95,16 +86,16 @@ jobs:
               </application>
           </manifest>
           EOF
-          echo '<resources><string name="app_name">InfinityV11</string></resources>' > app/src/main/res/values/strings.xml
+          echo '<resources><string name="app_name">InfinityV13</string></resources>' > app/src/main/res/values/strings.xml
 
-      - name: 🚀 Eksekusi Build Paksa (Debug Mode)
+      - name: 🚀 Eksekusi Build Paksa (Direct Mode)
         run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --continue || echo "MENCETAK HASIL SISA..."
+          sudo apt-get update && sudo apt-get install gradle -y
+          gradle assembleDebug --no-daemon --continue || echo "MENCETAK HASIL SISA..."
 
-      - name: 📦 Kirim Hasil (Search & Rescue Mode) 📦⚡
+      - name: 📦 Kirim APK Gacor (Search & Rescue) 📦⚡
         uses: actions/upload-artifact@v4
         with:
-          name: APK_SIAP_INSTAL_V11_FINAL
+          name: APK_SIAP_INSTAL_V13_FINAL
           path: "**/*.apk"
           if-no-files-found: error
