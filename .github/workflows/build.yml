@@ -1,20 +1,20 @@
-name: INFINITY_V14_OMNIPOTENT
+name: INFINITY_V15_OMNIPOTENT_SUPREME
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 🥷 Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
+      - name: ☕ Setup Java 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Forced Reconstruction & Auto-Repair
+      - name: 🏗️ Reconstruction & Auto-Repair (BOSS MODE)
         run: |
           # 1. RESET TOTAL & BERSIHIN SAMPAH
           rm -rf app build.gradle settings.gradle gradlew
@@ -26,24 +26,9 @@ jobs:
           find . -name "*.xml" -not -path "./app/*" -exec cp {} app/src/main/res/layout/ \;
 
           # 3. 🔥 AUTO-GENERATOR (Kalo Kode Lu Kosong/Rusak) 🔥
+          # Kita pake printf biar karakternya murni 100% tanpa campur tangan browser
           if [ ! -f "app/src/main/java/com/infinity/app/MainActivity.java" ] || [ ! -s "app/src/main/java/com/infinity/app/MainActivity.java" ]; then
-            cat <<EOF > app/src/main/java/com/infinity/app/MainActivity.java
-            package com.infinity.app;
-            import android.app.Activity;
-            import android.os.Bundle;
-            import android.widget.TextView;
-            import android.view.Gravity;
-            public class MainActivity extends Activity {
-                @Override
-                protected void onCreate(Bundle savedInstanceState) {
-                    super.onCreate(savedInstanceState);
-                    TextView tv = new TextView(this);
-                    tv.setText("INFINITY V14\nSTATUS: GACOR PARAH!");
-                    tv.setGravity(Gravity.CENTER);
-                    setContentView(tv);
-                }
-            }
-          EOF
+            printf "package com.infinity.app;\nimport android.app.Activity;\nimport android.os.Bundle;\nimport android.widget.TextView;\nimport android.view.Gravity;\npublic class MainActivity extends Activity {\n@Override\nprotected void onCreate(Bundle s){super.onCreate(s);TextView tv=new TextView(this);tv.setText(\"INFINITY V15 GACOR\");tv.setGravity(Gravity.CENTER);setContentView(tv);}\n}" > app/src/main/java/com/infinity/app/MainActivity.java
           fi
 
           # 4. 🔥 REPARASI SYNTAX BRUTAL 🔥
@@ -54,52 +39,26 @@ jobs:
             sed -i '2i import com.infinity.app.R;' "$file"
           done
 
-          # 5. NYIPTAIN SISTEM GRADLE ANTI-TRANSLATE-ERROR
+          # 5. NYIPTAIN SISTEM GRADLE ANTI-QUOTE-ERROR
           echo "include ':app'" > settings.gradle
           
-          cat <<EOF > build.gradle
-          buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }
-          }
-          allprojects { repositories { google(); mavenCentral() } }
-          EOF
+          printf "buildscript {\n  repositories { google(); mavenCentral() }\n  dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }\n}\nallprojects { repositories { google(); mavenCentral() } }\n" > build.gradle
 
-          cat <<EOF > app/build.gradle
-          apply plugin: 'com.android.application'
-          android {
-              namespace 'com.infinity.app'
-              compileSdk 34
-              defaultConfig {
-                  applicationId 'com.infinity.app'
-                  minSdk 21
-                  targetSdk 34
-              }
-          }
-          EOF
+          printf "apply plugin: 'com.android.application'\nandroid {\n  namespace 'com.infinity.app'\n  compileSdk 34\n  defaultConfig {\n    applicationId 'com.infinity.app'\n    minSdk 21\n    targetSdk 34\n  }\n}\n" > app/build.gradle
 
-          cat <<EOF > app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.infinity.app">
-              <application android:label="InfinityV14">
-                  <activity android:name=".MainActivity" android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-          echo '<resources><string name="app_name">InfinityV14</string></resources>' > app/src/main/res/values/strings.xml
+          # 6. MANIFEST & STRINGS
+          printf "<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.infinity.app'>\n<application android:label='InfinityV15'>\n<activity android:name='.MainActivity' android:exported='true'>\n<intent-filter>\n<action android:name='android.intent.action.MAIN' />\n<category android:name='android.intent.category.LAUNCHER' />\n</intent-filter>\n</activity>\n</application>\n</manifest>" > app/src/main/AndroidManifest.xml
+          printf "<resources><string name='app_name'>InfinityV15</string></resources>" > app/src/main/res/values/strings.xml
 
-      - name: Build APK (Direct Force)
+      - name: 🚀 Build APK Paksa (Direct Force)
         run: |
           sudo apt-get update && sudo apt-get install gradle -y
+          # Pake assembleDebug biar gak butuh kunci/sign
           gradle assembleDebug --no-daemon --continue || echo "PAKSA CARI HASIL!"
 
-      - name: Send Result (Search & Rescue) 📦⚡
+      - name: 📦 Send Result (Search & Rescue) 📦⚡
         uses: actions/upload-artifact@v4
         with:
-          name: APK_SIAP_INSTAL_V14_FINAL
+          name: APK_SIAP_INSTAL_V15_FINAL
           path: "**/*.apk"
           if-no-files-found: error
