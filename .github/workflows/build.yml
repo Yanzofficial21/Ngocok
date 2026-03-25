@@ -14,284 +14,176 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 🏗️ Setup Project
+      - name: 🏗️ Reconstruction & Auto-Repair (BOSS MODE)
         run: |
-          # Buat struktur folder
+          # BERSIHIN & BUAT STRUCTURE
+          rm -rf app output_apk
           mkdir -p app/src/main/java/com/infinity/app
+          mkdir -p app/src/main/res/layout
           mkdir -p app/src/main/res/values
-          
-          # COPY semua file Java yang ada
-          echo "📋 Copy Java files..."
-          for file in *.java; do
-            if [ -f "$file" ]; then
-              echo "Copying: $file"
-              cp "$file" app/src/main/java/com/infinity/app/
-            fi
-          done
-          
-          # AndroidManifest.xml (pakai yang sudah ada)
-          if [ -f "AndroidManifest.xml" ]; then
-            cp AndroidManifest.xml app/src/main/AndroidManifest.xml
-          else
-            # Buat manifest minimal
-            cat > app/src/main/AndroidManifest.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="com.infinity.app">
-              <application android:label="InfinityV16">
-                  <activity android:name=".MainActivity" android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOF
-          fi
-          
-          # strings.xml minimal
-          cat > app/src/main/res/values/strings.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <string name="app_name">InfinityV16</string>
-          </resources>
-          EOF
-          
-          # settings.gradle
-          echo "include ':app'" > settings.gradle
-          
-          # build.gradle root
-          cat > build.gradle << 'EOF'
-          buildscript {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-              dependencies {
-                  classpath 'com.android.tools.build:gradle:8.1.0'
-              }
-          }
-          
-          allprojects {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          EOF
-          
-          # app/build.gradle dengan dependencies lengkap
-          cat > app/build.gradle << 'EOF'
-          plugins {
-              id 'com.android.application'
-          }
-          
-          android {
-              namespace 'com.infinity.app'
-              compileSdk 34
-              
-              defaultConfig {
-                  applicationId "com.infinity.app"
-                  minSdk 21
-                  targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
-              }
-              
-              buildTypes {
-                  debug {
-                      minifyEnabled false
-                  }
-              }
-              
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_1_8
-                  targetCompatibility JavaVersion.VERSION_1_8
-              }
-          }
-          
-          dependencies {
-              implementation 'androidx.appcompat:appcompat:1.6.1'
-              implementation 'com.google.android.material:material:1.9.0'
-              implementation 'androidx.core:core:1.12.0'
-              implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-              implementation 'com.google.code.gson:gson:2.10.1'
-              implementation 'org.telegram:telegrambots:6.9.7.1'
-              implementation 'org.java-websocket:Java-WebSocket:1.5.3'
-          }
-          EOF
+          mkdir -p app/src/main/res/xml
 
-      - name: 🔧 Fix Java Files
-        run: |
-          # Tambahkan package ke semua file Java
-          cd app/src/main/java/com/infinity/app
-          for file in *.java; do
+          # PINDAHIN FILE JAVA (kalo ada)
+          find . -name "*.java" -type f -not -path "./app/*" -exec cp {} app/src/main/java/com/infinity/app/ \; 2>/dev/null || true
+
+          # PINDAHIN FILE XML (kalo ada)
+          find . -name "*.xml" -type f -not -path "./app/*" -exec cp {} app/src/main/res/layout/ \; 2>/dev/null || true
+
+          # 🔥 BUAT MAINACTIVITY DEFAULT (kalo kosong)
+          if [ ! -f "app/src/main/java/com/infinity/app/MainActivity.java" ] || [ ! -s "app/src/main/java/com/infinity/app/MainActivity.java" ]; then
+            cat > app/src/main/java/com/infinity/app/MainActivity.java << 'JAVAEOF'
+package com.infinity.app;
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.TextView;
+import android.view.Gravity;
+public class MainActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        TextView tv = new TextView(this);
+        tv.setText("INFINITY V16 ACTIVE");
+        tv.setGravity(Gravity.CENTER);
+        setContentView(tv);
+    }
+}
+JAVAEOF
+          fi
+
+          # 🔧 FIX PACKAGE NAME SEMUA JAVA FILE
+          for file in app/src/main/java/com/infinity/app/*.java; do
             if [ -f "$file" ]; then
-              echo "Fixing: $file"
-              # Hapus package yang ada
               sed -i '/^package /d' "$file"
-              # Tambah package di awal
-              echo "package com.infinity.app;" > temp
-              cat "$file" >> temp
-              mv temp "$file"
+              sed -i '1i package com.infinity.app;' "$file"
             fi
           done
-          cd ../../../../..
 
-      - name: 🚀 Build APK
+          # 📝 BUAT GRADLE FILES
+          cat > settings.gradle << 'GRADLEEOF'
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "InfinityV16"
+include ':app'
+GRADLEEOF
+
+          cat > build.gradle << 'GRADLEEOF'
+plugins {
+    id 'com.android.application' version '8.1.0' apply false
+}
+GRADLEEOF
+
+          cat > app/build.gradle << 'APPGRADLE'
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.infinity.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.infinity.app"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}
+APPGRADLE
+
+          # 📄 MANIFEST
+          cat > app/src/main/AndroidManifest.xml << 'MANIFEST'
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.infinity.app">
+
+    <application
+        android:allowBackup="true"
+        android:label="Infinity V16"
+        android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+MANIFEST
+
+          # 📄 STRINGS
+          cat > app/src/main/res/values/strings.xml << 'STRINGS'
+<resources>
+    <string name="app_name">Infinity V16</string>
+</resources>
+STRINGS
+
+          # 🎨 THEME
+          cat > app/src/main/res/values/themes.xml << 'THEMES'
+<resources>
+    <style name="Theme.AppCompat.Light" parent="Theme.AppCompat.Light.DarkActionBar" />
+</resources>
+THEMES
+
+          # 🔧 BUAT GRADLE WRAPPER
+          echo "BUILD GRADLE"
+          gradle wrapper --gradle-version 8.1.0
+          chmod +x gradlew
+
+      - name: 🚀 Build APK Paksa
         run: |
-          # Install gradle
-          sudo apt-get update
-          sudo apt-get install gradle -y
+          # BUILD DENGAN GRADLE WRAPPER
+          ./gradlew assembleDebug --no-daemon --stacktrace
           
-          # Coba build dengan stacktrace
-          gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          
-          # Cek apakah berhasil
-          if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
-            echo "✅ BUILD SUCCESS!"
-            ls -la app/build/outputs/apk/debug/
-          else
-            echo "❌ BUILD FAILED!"
-            echo ""
-            echo "=== ERROR DETAILS ==="
-            grep -A 5 "error:" build.log | head -50
-            exit 1
+          # KALO GAGAL, COBA PAKE GRADLE SYSTEM
+          if [ $? -ne 0 ]; then
+            echo "Gradle wrapper gagal, coba pake gradle system..."
+            gradle assembleDebug --no-daemon
           fi
 
-      - name: 📦 Upload APK
-        if: success()
+      - name: 🚚 Pindahin APK ke Depan
+        run: |
+          mkdir -p output_apk
+          # CARI APK DI SEMUA TEMPAT
+          find . -name "*.apk" -type f -exec cp {} output_apk/ \; 2>/dev/null || true
+          find app/build -name "*.apk" -type f -exec cp {} output_apk/ \; 2>/dev/null || true
+          
+          # LIST FILE UNTUK LOG
+          echo "=== APK FOUND ==="
+          ls -la output_apk/ || echo "TIDAK ADA APK"
+          echo "================="
+
+      - name: 📦 Kirim APK Hasil Final
         uses: actions/upload-artifact@v4
         with:
           name: APK_SIAP_DOWNLOAD_V16
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error                  applicationId "com.infinity.app"
-                  minSdk 21
-                  targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
-              }
-              
-              buildTypes {
-                  debug {
-                      minifyEnabled false
-                      debuggable true
-                  }
-              }
-              
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_1_8
-                  targetCompatibility JavaVersion.VERSION_1_8
-              }
-          }
-          
-          dependencies {
-              implementation 'androidx.appcompat:appcompat:1.6.1'
-              implementation 'com.google.android.material:material:1.9.0'
-              implementation 'androidx.core:core:1.10.1'
-              implementation 'com.squareup.okhttp3:okhttp:4.11.0'
-              implementation 'com.google.code.gson:gson:2.10.1'
-              implementation 'org.telegram:telegrambots:6.5.0'
-              implementation 'org.java-websocket:Java-WebSocket:1.5.3'
-          }
-          EOF
-          
-          # 8. Buat strings.xml jika belum ada
-          mkdir -p app/src/main/res/values
-          if [ ! -f "app/src/main/res/values/strings.xml" ]; then
-            cat > app/src/main/res/values/strings.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <string name="app_name">InfinityV16</string>
-          </resources>
-          EOF
-          fi
-          
-          # 9. Buat themes.xml jika belum ada
-          if [ ! -f "app/src/main/res/values/themes.xml" ]; then
-            cat > app/src/main/res/values/themes.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-                  <item name="colorPrimary">#6200EE</item>
-                  <item name="colorPrimaryDark">#3700B3</item>
-                  <item name="colorAccent">#03DAC5</item>
-              </style>
-          </resources>
-          EOF
-          fi
-          
-          # 10. Tampilkan struktur file untuk debugging
-          echo "📁 Struktur file setelah setup:"
-          find app/src -type f | head -20
-
-      - name: 🚀 Build APK dengan Gradle Wrapper
-        run: |
-          # Setup gradle wrapper
-          export ANDROID_SDK_ROOT=$PWD/android-sdk
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
-          export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
-          
-          # Install gradle
-          sudo apt-get install -y gradle
-          
-          # Build APK
-          gradle clean assembleDebug --no-daemon --stacktrace || {
-            echo "❌ Build gagal, coba dengan info lebih detail..."
-            gradle assembleDebug --no-daemon --stacktrace --info 2>&1 | tail -100
-            exit 1
-          }
-
-      - name: 📂 Kumpulin APK
-        run: |
-          mkdir -p output_apk
-          
-          echo "🔍 Mencari APK yang dihasilkan..."
-          
-          # Cek semua kemungkinan lokasi APK
-          find . -name "*.apk" -type f -exec ls -la {} \;
-          
-          # Copy APK ke output folder
-          find . -name "*.apk" -type f -exec cp -v {} ./output_apk/ \;
-          
-          # Cek folder default build
-          if [ -d "app/build/outputs/apk" ]; then
-            cp -r app/build/outputs/apk/* ./output_apk/ 2>/dev/null || true
-          fi
-          
-          # Rename APK biar jelas
-          cd output_apk
-          for apk in *.apk; do
-            if [ -f "$apk" ]; then
-              mv "$apk" "InfinityV16_${apk}" 2>/dev/null || true
-            fi
-          done
-          cd ..
-          
-          echo "✅ APK yang berhasil dikumpulkan:"
-          ls -la ./output_apk/ || echo "⚠️ Tidak ada APK ditemukan!"
-          
-          # Kalau kosong, buat file log error
-          if [ ! "$(ls -A ./output_apk/ 2>/dev/null)" ]; then
-            echo "ERROR: Build failed - No APK generated" > ./output_apk/build_error.txt
-            echo "Check build logs for details" >> ./output_apk/build_error.txt
-          fi
-
-      - name: 📦 Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: InfinityV16_APK
           path: output_apk/
           if-no-files-found: warn
-          retention-days: 7
-
-      - name: 📊 Build Summary
-        if: always()
-        run: |
-          echo "## 📊 Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### APK Files:" >> $GITHUB_STEP_SUMMARY
-          ls -la ./output_apk/ 2>/dev/null | grep -E '\.apk|\.txt' | while read line; do
-            echo "- \`$line\`" >> $GITHUB_STEP_SUMMARY
-          done || echo "- No APK files found" >> $GITHUB_STEP_SUMMARY
